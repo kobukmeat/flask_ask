@@ -26,6 +26,11 @@
                 </li>
             </ul>
             {% endif %}
+            <div class="navbar-nav">
+                {% for board in boards %}
+                    <a class="nav-link" href="{{ url_for('question._list', board_id=board.id) }}">{{ board.name }}</a>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </nav>

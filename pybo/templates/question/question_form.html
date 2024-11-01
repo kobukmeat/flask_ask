@@ -5,6 +5,13 @@
     <form method="post" class="my-3">
         {{ form.csrf_token }}
         {% include "form_errors.html" %}
+        <div class="mb-100">
+        <label for="{{ form.board_id.id }}" class="form-label">{{ form.board_id.label }}</label>
+        {{ form.board_id(class="form-select") }}  <!-- Bootstrap 클래스 추가 -->
+        {% for error in form.board_id.errors %}
+            <div class="text-danger">{{ error }}</div>  <!-- Bootstrap 에러 스타일 -->
+        {% endfor %}
+        </div>
         <div class="mb-3">
             <label for="subject">제목</label>
             <input type="text" class="form-control" name="subject" id="subject"

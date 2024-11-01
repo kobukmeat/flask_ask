@@ -22,6 +22,8 @@ class Question(db.Model):
     user = db.relationship('User', backref=db.backref('question_set'))
     modify_date = db.Column(db.DateTime(), nullable=True)
     voter = db.relationship('User', secondary=question_voter, backref=db.backref('question_voter_set'))
+    board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
+    board = db.relationship('Board', backref=db.backref('posts', lazy=True))
 
 
 class Answer(db.Model):
@@ -41,3 +43,8 @@ class User(db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+class Board(db.Model):
+    __tablename__ = 'board'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)

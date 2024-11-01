@@ -7,6 +7,8 @@ from werkzeug.utils import redirect
 from pybo import db
 from pybo.forms import UserCreateForm, UserLoginForm
 from pybo.models import User
+from passlib.context import CryptContext
+import bcrypt
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -18,7 +20,7 @@ def signup():
         user = User.query.filter_by(username=form.username.data).first()
         if not user:
             user = User(username=form.username.data,
-                        password=generate_password_hash(form.password1.data),
+                        password=bcrypt.hashpw(form.password1.data.encode('utf-8'), bcrypt.gensalt()),
                         email=form.email.data)
             db.session.add(user)
             db.session.commit()
@@ -36,7 +38,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if not user:
             error = "존재하지 않는 사용자입니다."
-        elif not check_password_hash(user.password, form.password.data):
+        elif not bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
             error = "비밀번호가 올바르지 않습니다."
         if error is None:
             session.clear()
