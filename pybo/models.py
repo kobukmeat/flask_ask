@@ -22,7 +22,7 @@ class Question(db.Model):
     user = db.relationship('User', backref=db.backref('question_set'))
     modify_date = db.Column(db.DateTime(), nullable=True)
     voter = db.relationship('User', secondary=question_voter, backref=db.backref('question_voter_set'))
-    board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
+    board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=True)
     board = db.relationship('Board', backref=db.backref('posts', lazy=True))
 
 
