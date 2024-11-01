@@ -24,6 +24,7 @@ class Question(db.Model):
     voter = db.relationship('User', secondary=question_voter, backref=db.backref('question_voter_set'))
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=True)
     board = db.relationship('Board', backref=db.backref('posts', lazy=True))
+    view_count = db.Column(db.Integer, default=0)
 
 
 class Answer(db.Model):

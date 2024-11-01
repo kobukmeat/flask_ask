@@ -43,7 +43,14 @@ def _list():
 def detail(question_id):
     form = AnswerForm()
     question = Question.query.get_or_404(question_id)
-    return render_template('question/question_detail.html', question=question, form=form)
+    # 조회수 초기화 및 증가
+    if question.view_count is None:  # None일 경우 0으로 초기화
+        question.view_count = 0
+    question.view_count += 1
+    db.session.commit()
+    board_id = request.args.get('board_id', type=int)
+    boards = Board.query.all()
+    return render_template('question/question_detail.html',boards=boards,selected_board_id=board_id, question=question, form=form)
 
 
 @bp.route('/create/', methods=('GET', 'POST'))
@@ -51,33 +58,51 @@ def detail(question_id):
 def create():
     form = QuestionForm()
     form.board_id.choices = [(board.id, board.name) for board in Board.query.all()]
+    board_id = request.args.get('board_id', type=int)
+    boards = Board.query.all()
+
+    # 특정 키워드 리스트
+    restricted_keywords = ['시발', '섹스', 'ㅅㅅ', '시12발']  # 여기에 금지어 추가
+
+
     if request.method == 'POST' and form.validate_on_submit():
+        if any(keyword in form.subject.data for keyword in restricted_keywords) or any(keyword in form.content.data for keyword in restricted_keywords):
+            flash('제목이나 내용에 금지된 단어가 포함되어 있습니다. 정신차리세요', 'danger')
+            return render_template('question/question_form.html', boards=boards, selected_board_id=board_id, form=form)
+
         question = Question(subject=form.subject.data, content=form.content.data,
                             create_date=datetime.now(), user=g.user,
                             board_id=form.board_id.data)
         db.session.add(question)
         db.session.commit()
         return redirect(url_for('main.index'))
-    return render_template('question/question_form.html', form=form)
+    return render_template('question/question_form.html', boards=boards,selected_board_id=board_id, form=form)
 
 
 @bp.route('/modify/<int:question_id>', methods=('GET', 'POST'))
 @login_required
 def modify(question_id):
     question = Question.query.get_or_404(question_id)
+    boards = Board.query.all()  # 모든 게시판 목록
+
     if g.user != question.user:
         flash('수정권한이 없습니다')
         return redirect(url_for('question.detail', question_id=question_id))
-    if request.method == 'POST':  # POST 요청
-        form = QuestionForm()
+
+    form = QuestionForm(obj=question)  # 기존 질문 데이터를 사용하여 폼 초기화
+    form.board_id.choices = [(board.id, board.name) for board in boards]  # 게시판 선택지 설정
+
+    if request.method == 'POST':
         if form.validate_on_submit():
-            form.populate_obj(question)
+            form.populate_obj(question)  # 폼 데이터를 질문 객체에 반영
             question.modify_date = datetime.now()  # 수정일시 저장
             db.session.commit()
             return redirect(url_for('question.detail', question_id=question_id))
-    else:  # GET 요청
-        form = QuestionForm(obj=question)
-    return render_template('question/question_form.html', form=form)
+
+    # GET 요청 시, 기본 선택 값으로 질문의 게시판을 설정
+    form.board_id.data = question.board_id  # 수정할 질문의 게시판 ID를 기본 선택으로 설정
+
+    return render_template('question/question_form.html', boards=boards, form=form)
 
 
 @bp.route('/delete/<int:question_id>')

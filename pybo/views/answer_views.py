@@ -16,13 +16,20 @@ bp = Blueprint('answer', __name__, url_prefix='/answer')
 def create(question_id):
     form = AnswerForm()
     question = Question.query.get_or_404(question_id)
+    board_id = question.board_id
     if form.validate_on_submit():
+    # 금지어 리스트
+        restricted_keywords = ['시발', '섹스', 'ㅅㅅ', '시12발']
+
+          # 콘텐츠에서 금지어 체크
+        if any(keyword in form.content.data for keyword in restricted_keywords):
+            flash('답변 내용에 금지된 단어가 포함되어 있습니다. 정신차리세요.', 'danger')
+            return redirect(url_for('question.detail', question_id=question_id))
         content = request.form['content']
         answer = Answer(content=content, create_date=datetime.now(), user=g.user)
         question.answer_set.append(answer)
         db.session.commit()
-        return redirect('{}#answer_{}'.format(
-            url_for('question.detail', question_id=question_id), answer.id))
+        return redirect('{}#answer_{}'.format(url_for('question.detail', question_id=question_id), answer.id))
     return render_template('question/question_detail.html', question=question, form=form)
 
 
@@ -30,11 +37,28 @@ def create(question_id):
 @login_required
 def modify(answer_id):
     answer = Answer.query.get_or_404(answer_id)
+    question_id = answer.question.id
+    question = Question.query.get_or_404(question_id)
+
     if g.user != answer.user:
         flash('수정권한이 없습니다')
         return redirect(url_for('question.detail', question_id=answer.question.id))
     if request.method == "POST":
         form = AnswerForm()
+        if form.validate_on_submit():
+            # 금지어 리스트
+            restricted_keywords = ['시발', '섹스', 'ㅅㅅ', '시12발']
+
+            # 콘텐츠에서 금지어 체크
+            if any(keyword in form.content.data for keyword in restricted_keywords):
+                flash('답변 내용에 금지된 단어가 포함되어 있습니다. 정신차리세요.', 'danger')
+                return redirect(url_for('question.detail', question_id=question_id))
+            content = request.form['content']
+            answer = Answer(content=content, create_date=datetime.now(), user=g.user)
+            question.answer_set.append(answer)
+            db.session.commit()
+            return redirect('{}#answer_{}'.format(url_for('question.detail', question_id=question_id), answer.id))
+
         if form.validate_on_submit():
             form.populate_obj(answer)
             answer.modify_date = datetime.now()  # 수정일시 저장
