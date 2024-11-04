@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어 단어 암기</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            flex-direction: column; /* 세로 방향으로 정렬 */
+        }
+        .card {
+            width: 300px;
+            height: 700px;
+            perspective: 1000px;
+            margin-bottom: 20px;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 15px; /* 모서리 둥글게 */
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            border-radius: 15px; /* 모서리 둥글게 */
+        }
+        .card-front {
+            background-color: #007bff;
+            color: white;
+        }
+        .card-back {
+            background-color: red;
+            color: white;
+            transform: rotateY(180deg);
+        }
+        .btn-large {
+            width: 100px;
+            height: 50px;
+            margin: 0 10px; /* 버튼 간의 간격 조정 */
+        }
+        .hidden {
+            display: none;
+        }
+        .fade-out {
+            animation: fadeOut 0.6s forwards;
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px); /* 아래로 이동하는 효과 */
+            }
+        }
+        .button-container {
+            display: flex;
+            justify-content: center; /* 버튼을 가운데 정렬 */
+            margin-top: 10px; /* 카드와 버튼 간격 조정 */
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="flashcard">
+    <div class="card-inner" id="cardInner" onclick="flipCard()">
+        <div class="card-front">
+            <div id="word">앞</div>
+        </div>
+        <div class="card-back">
+            <div id="translation">뒤</div>
+        </div>
+    </div>
+</div>
+<div class="button-container">
+    <button class="btn btn-danger btn-large" id="unknownBtn">모름</button>
+    <button class="btn btn-success btn-large" id="knownBtn">암기</button>
+</div>
+
+<script>
+    // 단어 목록을 unknownQueue로 사용
+    let unknownQueue = [
+        { english: "apple", korean: "사과" },
+        { english: "banana", korean: "바나나" },
+        { english: "ramen", korean: "라면" },
+        { english: "cola", korean: "콜라" },
+        { english: "cider", korean: "사이다" },
+    ];
+
+    let currentWordIndex = 0; // 현재 단어 인덱스
+
+    function displayCard() {
+        const flashcard = document.getElementById('flashcard');
+        const cardInner = document.getElementById('cardInner');
+        const wordElement = document.getElementById('word');
+        const translationElement = document.getElementById('translation');
+
+        // 현재 인덱스가 unknownQueue의 길이보다 작으면 단어를 표시
+        if (currentWordIndex < unknownQueue.length) {
+            const currentWord = unknownQueue[currentWordIndex];
+            wordElement.textContent = currentWord.english;
+            translationElement.textContent = currentWord.korean;
+            cardInner.style.transform = "rotateY(0deg)";
+            flashcard.classList.remove('hidden');
+        } else {
+            flashcard.classList.add('hidden');
+            alert("모든 단어를 처리했습니다.");
+        }
+    }
+
+    function flipCard() {
+        const cardInner = document.getElementById('cardInner');
+        // 카드가 현재 앞면인 경우 카드 뒤집기
+        if (cardInner.style.transform === "rotateY(180deg)") {
+            cardInner.style.transform = "rotateY(0deg)"; // 카드 앞면으로 돌아가기
+        } else {
+            cardInner.style.transform = "rotateY(180deg)"; // 카드 뒤집기
+        }
+    }
+
+    document.getElementById('knownBtn').addEventListener('click', function () {
+
+        displayNextCard();
+
+    });
+
+    document.getElementById('unknownBtn').addEventListener('click', function () {
+        // '모름'으로 표시하고 unknownQueue의 맨 뒤에 추가
+        if (currentWordIndex < unknownQueue.length) {
+            const currentWord = unknownQueue[currentWordIndex];
+            unknownQueue.push(currentWord); // 현재 단어를 unknownQueue의 맨 뒤에 추가
+            displayNextCard(); // 다음 카드 표시
+        }
+    });
+
+    function displayNextCard() {
+        // 단어 인덱스를 다음 단어로 설정
+        currentWordIndex++;
+        displayCard();
+    }
+
+    // Initialize the first card display
+    displayCard();
+</script>
+
+</body>
+</html>

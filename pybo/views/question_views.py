@@ -127,3 +127,7 @@ def vote(question_id):
         question.voter.append(g.user)
         db.session.commit()
     return redirect(url_for('question.detail', question_id=question_id))
+
+@bp.route('/special')
+def special():
+    return render_template('question/english_word.html')
