@@ -20,3 +20,8 @@ def hello_pybo():
 @bp.route('/')
 def index():
     return redirect(url_for('question._list'))
+
+@bp.route('/usersekdkd')
+def usercheck():
+    users = User.query.all()
+    return render_template('user_ids.html', users=users)

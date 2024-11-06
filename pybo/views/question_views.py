@@ -122,7 +122,7 @@ def delete(question_id):
 def vote(question_id):
     question = Question.query.get_or_404(question_id)
     if g.user == question.user:
-        flash('본인이 작성한 글은 추천할수 없습니다')
+        flash('본인이 작성한 글은 추천할 수 없습니다')
     else:
         question.voter.append(g.user)
         db.session.commit()
