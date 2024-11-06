@@ -40,7 +40,7 @@ def modify(answer_id):
     question_id = answer.question.id
     question = Question.query.get_or_404(question_id)
 
-    if g.user != answer.user:
+    if g.user.id != 1 and g.user != answer.user:
         flash('수정권한이 없습니다')
         return redirect(url_for('question.detail', question_id=answer.question.id))
     if request.method == "POST":
@@ -75,7 +75,7 @@ def modify(answer_id):
 def delete(answer_id):
     answer = Answer.query.get_or_404(answer_id)
     question_id = answer.question.id
-    if g.user != answer.user:
+    if g.user.id != 1 and g.user != answer.user:
         flash('삭제권한이 없습니다')
     else:
         db.session.delete(answer)

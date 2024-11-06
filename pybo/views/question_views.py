@@ -85,7 +85,7 @@ def modify(question_id):
     question = Question.query.get_or_404(question_id)
     boards = Board.query.all()  # 모든 게시판 목록
 
-    if g.user != question.user:
+    if g.user.id != 1 and g.user != answer.user:
         flash('수정권한이 없습니다')
         return redirect(url_for('question.detail', question_id=question_id))
 
@@ -109,7 +109,7 @@ def modify(question_id):
 @login_required
 def delete(question_id):
     question = Question.query.get_or_404(question_id)
-    if g.user != question.user:
+    if g.user.id != 1 and g.user != answer.user:
         flash('삭제권한이 없습니다')
         return redirect(url_for('question.detail', question_id=question_id))
     db.session.delete(question)
