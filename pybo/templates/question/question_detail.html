@@ -20,10 +20,10 @@
                     <div>{{ question.modify_date|datetime }}</div>
                 </div>
                 {% endif %}
-                <div class="badge bg-light text-dark p-2 text-start">
+                 <div class="badge {% if g.user.id == 1 %}bg-warning{% else %}bg-light{% endif %} text-dark p-2 text-start">
                     <div class="mb-2">{{ question.user.username }}</div>
                     <div>{{ question.create_date|datetime }}</div>
-                </div>
+                 </div>
             </div>
             <div class="my-3">
                 <a href="javascript:void(0)" data-uri="{{ url_for('question.vote', question_id=question.id) }}"
