@@ -54,7 +54,7 @@
                     <div>{{ answer.modify_date|datetime }}</div>
                 </div>
                 {% endif %}
-                <div class="badge {% if question.user.id == 1 %}bg-warning{% else %}bg-light{% endif %} text-dark p-2 text-start">
+                <div class="badge {% if answer.user.id == 1 %}bg-warning{% else %}bg-light{% endif %} text-dark p-2 text-start">
                     <div class="mb-2">{{ answer.user.username }}</div>
                     <div>{{ answer.create_date|datetime }}</div>
                 </div>
